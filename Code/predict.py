@@ -1,13 +1,14 @@
 from tensorflow.keras.models import load_model
 import pandas as pd
 import numpy as np
-
-
+from sklearn.preprocessing import PolynomialFeatures
+import pickle
 
 class Predict(object):
 
     def __init__(self):
         self.model=load_model('bbb_model')
+        self.neuroinflammationmodel=pickle.load(open('polynomial_regression.sav','rb'))
 
 
     def preprocess_data(self,data):
@@ -37,6 +38,16 @@ class Predict(object):
         logBBresult=self.model.predict(normalizeddata.reshape(-1,16))
         print("Results predicted")
         return logBBresult[0][0]
+
+    def neuroinflammationmodel(self,data):
+        poly=PolynomialFeatures(degree=4,include_bias=False)
+        poly_features=poly.fit_transform(data.values.reshape(-1,1))
+        updated_logbb=self.neuroinflammationmodel.predict(poly_features)
+
+        print("Neuro Inflammation model is run")
+
+        return updated_logbb[0]
+
 
 
 if __name__=="__main__":
